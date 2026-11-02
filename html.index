@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlas Farm Guide — NASA Space Apps 2026</title>
+    <style>
+        :root {
+            --green-dark: #1a5c2a;
+            --green-mid: #2d8c47;
+            --green-light: #4caf67;
+            --green-pale: #e8f5e9;
+            --earth-brown: #8d6e63;
+            --sky-blue: #0277bd;
+            --text-dark: #1b2e1f;
+            --white: #ffffff;
+            --shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #f0f7f0;
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+        header {
+            background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 100%);
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+        }
+        .logo { display: flex; align-items: center; gap: 12px; color: white; }
+        .logo-icon { font-size: 36px; }
+        .logo-text h1 { font-size: 24px; font-weight: 700; }
+        .logo-text p { font-size: 12px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+        .nasa-badge {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .hero {
+            background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 60%, var(--green-light) 100%);
+            padding: 60px 40px;
+            text-align: center;
+            color: white;
+        }
+        .hero h2 { font-size: 42px; font-weight: 800; margin-bottom: 16px; }
+        .hero p { font-size: 18px; opacity: 0.9; max-width: 600px; margin: 0 auto 30px; line-height: 1.6; }
+        .hero-stats { display: flex; justify-content: center; gap: 40px; }
+        .stat { text-align: center; }
+        .stat-number { font-size: 28px; font-weight: 700; }
+        .stat-label { font-size: 12px; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; }
+        .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--green-dark);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .api-key-section {
+            background: #fff9e6;
+            border: 1px solid #ffe082;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .api-key-section h3 { color: #e65100; font-size: 14px; margin-bottom: 10px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        label { font-size: 14px; font-weight: 600; color: var(--green-dark); }
+        input, select, textarea {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+            background: white;
+            color: var(--text-dark);
+            width: 100%;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--green-mid); }
+        .priority-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .priority-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: normal;
+        }
+        .priority-item:hover, .priority-item.selected {
+            border-color: var(--green-mid);
+            background: var(--green-pale);
+        }
+        .priority-item input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; flex-shrink: 0; }
+        .btn-analyze {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .btn-analyze:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(45,140,71,0.4); }
+        .btn-analyze:disabled { background: #ccc; transform: none; box-shadow: none; cursor: not-allowed; }
+        .loading { text-align: center; padding: 60px 20px; color: var(--green-mid); }
+        .loading-spinner {
+            width: 50px; height: 50px;
+            border: 4px solid var(--green-pale);
+            border-top: 4px solid var(--green-mid);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .nasa-data {
+            background: linear-gradient(135deg, #0d1b4b, #1565c0);
+            border-radius: 16px;
+            padding: 28px;
+            color: white;
+            margin-bottom: 24px;
+        }
+        .nasa-data h3 { font-size: 16px; margin-bottom: 20px; opacity: 0.9; }
+        .nasa-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .nasa-metric {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        .metric-value { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+        .metric-label { font-size: 11px; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; }
+        .metric-unit { font-size: 13px; opacity: 0.8; }
+        .strategies-title { font-size: 22px; font-weight: 700; color: var(--green-dark); margin-bottom: 20px; }
+        .strategy-card {
+            background: white;
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            border-left: 6px solid var(--green-mid);
+            position: relative;
+            overflow: hidden;
+        }
+        .strategy-number {
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            font-size: 80px;
+            font-weight: 900;
+            color: rgba(0,0,0,0.04);
+            line-height: 1;
+        }
+        .strategy-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+        .strategy-name { font-size: 20px; font-weight: 700; color: var(--green-dark); margin-top: 10px; }
+        .strategy-sequence { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .crop-tag {
+            background: var(--green-pale);
+            color: var(--green-dark);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .crop-arrow { color: var(--green-mid); font-size: 16px; }
+        .strategy-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .section-box { background: #f8f9fa; border-radius: 10px; padding: 14px; }
+        .section-box h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 8px; }
+        .section-box p { font-size: 14px; line-height: 1.5; color: #444; }
+        .section-box.nasa-ref { background: #e8eaf6; border-left: 3px solid #3f51b5; }
+        .section-box.risk { background: #fff8e1; border-left: 3px solid #ff8f00; }
+        .score-badge {
+            background: var(--green-mid);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        footer {
+            background: var(--green-dark);
+            color: rgba(255,255,255,0.7);
+            text-align: center;
+            padding: 30px;
+            font-size: 13px;
+        }
+        footer strong { color: white; }
+        .error-box {
+            background: #ffebee;
+            border: 1px solid #ef9a9a;
+            border-radius: 12px;
+            padding: 20px;
+            color: #c62828;
+            margin-bottom: 20px;
+        }
+        .btn-print {
+            background: transparent;
+            border: 2px solid var(--green-mid);
+            color: var(--green-mid);
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 20px auto 0;
+            transition: all 0.2s;
+        }
+        .btn-print:hover { background: var(--green-pale); }
+        #results { display: none; }
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .nasa-metrics { grid-template-columns: repeat(2, 1fr); }
+            .strategy-sections { grid-template-columns: 1fr; }
+            .hero h2 { font-size: 28px; }
+            .hero-stats { gap: 20px; }
+            header { padding: 16px 20px; }
+            .hero { padding: 40px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        <span class="logo-icon">🌾</span>
+        <div class="logo-text">
+            <h1>Atlas Farm Guide</h1>
+            <p>AI-Powered Crop Rotation Advisor</p>
+        </div>
+    </div>
+    <div class="nasa-badge">🛰️ NASA Space Apps 2026</div>
+</header>
+
+<div class="hero">
+    <h2>Smart Farming Starts Here</h2>
+    <p>Using NASA Earth observations and AI to help farmers explore better crop rotation strategies — protecting soil, conserving water, building resilience.</p>
+    <div class="hero-stats">
+        <div class="stat">
+            <div class="stat-number">7+</div>
+            <div class="stat-label">NASA Datasets</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number">3</div>
+            <div class="stat-label">Rotation Strategies</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number">AI</div>
+            <div class="stat-label">Powered by Groq</div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- API Key -->
+    <div class="api-key-section">
+        <h3>⚙️ One-time setup — Enter your Groq API Key</h3>
+        <div class="form-group">
+            <input type="password" id="groqApiKey" placeholder="Paste your key here: gsk_...">
+        </div>
+        <p style="font-size:12px; color:#888; margin-top:8px;">
+            Get your free key at <strong>console.groq.com</strong> → API Keys → Create API Key
+        </p>
+    </div>
+
+    <!-- Form -->
+    <div class="card">
+        <div class="card-title">🌍 Tell Us About Your Farm</div>
+        <div class="form-grid">
+
+            <div class="form-group">
+                <label>📍 Country</label>
+                <select id="country">
+                    <option value="Morocco">Morocco (Al Maghrib) 🇲🇦</option>
+                    <option value="Algeria">Algeria 🇩🇿</option>
+                    <option value="Tunisia">Tunisia 🇹🇳</option>
+                    <option value="Egypt">Egypt 🇪🇬</option>
+                    <option value="Senegal">Senegal 🇸🇳</option>
+                    <option value="Kenya">Kenya 🇰🇪</option>
+                    <option value="Ethiopia">Ethiopia 🇪🇹</option>
+                    <option value="Nigeria">Nigeria 🇳🇬</option>
+                    <option value="South Africa">South Africa 🇿🇦</option>
+                    <option value="India">India 🇮🇳</option>
+                    <option value="Pakistan">Pakistan 🇵🇰</option>
+                    <option value="Turkey">Turkey 🇹🇷</option>
+                    <option value="France">France 🇫🇷</option>
+                    <option value="Spain">Spain 🇪🇸</option>
+                    <option value="Italy">Italy 🇮🇹</option>
+                    <option value="United States">United States 🇺🇸</option>
+                    <option value="Brazil">Brazil 🇧🇷</option>
+                    <option value="Argentina">Argentina 🇦🇷</option>
+                    <option value="Other">Other country</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>🏔️ Region / Province (optional)</label>
+                <input type="text" id="region" placeholder="e.g., Marrakech-Safi, Souss-Massa...">
+            </div>
+
+            <div class="form-group">
+                <label>🌾 Current Main Crop</label>
+                <select id="currentCrop">
+                    <option value="">Select your crop...</option>
+                    <option value="Wheat (Blé dur / tendre)">Wheat (Blé dur / tendre)</option>
+                    <option value="Barley (Orge)">Barley (Orge)</option>
+                    <option value="Corn / Maize (Maïs)">Corn / Maize</option>
+                    <option value="Sunflower (Tournesol)">Sunflower</option>
+                    <option value="Chickpeas (Pois chiches)">Chickpeas</option>
+                    <option value="Lentils (Lentilles)">Lentils</option>
+                    <option value="Fava Beans (Fèves)">Fava Beans</option>
+                    <option value="Olive (Olivier)">Olive</option>
+                    <option value="Citrus (Agrumes)">Citrus</option>
+                    <option value="Tomatoes">Tomatoes</option>
+                    <option value="Potatoes">Potatoes</option>
+                    <option value="Cotton">Cotton</option>
+                    <option value="Rice">Rice</option>
+                    <option value="Sorghum">Sorghum</option>
+                    <option value="Other crop">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>📏 Farm Size</label>
+                <select id="farmSize">
+                    <option value="small (less than 5 hectares)">Small — less than 5 ha</option>
+                    <option value="medium (5 to 50 hectares)" selected>Medium — 5 to 50 ha</option>
+                    <option value="large (more than 50 hectares)">Large — more than 50 ha</option>
+                </select>
+            </div>
+
+            <div class="form-group full-width">
+                <label>⚠️ Main Challenges (select all that apply)</label>
+                <div class="priority-grid" id="priorityGrid">
+                    <label class="priority-item selected">
+                        <input type="checkbox" checked value="drought and water shortage"> 💧 Drought / Water shortage
+                    </label>
+                    <label class="priority-item">
+                        <input type="checkbox" value="soil degradation and low fertility"> 🪨 Soil degradation
+                    </label>
+                    <label class="priority-item">
+                        <input type="checkbox" value="extreme heat and temperature stress"> 🌡️ Extreme heat
+                    </label>
+                    <label class="priority-item">
+                        <input type="checkbox" value="soil erosion from wind and rain"> 🌊 Erosion
+                    </label>
+                    <label class="priority-item">
+                        <input type="checkbox" value="pest and disease pressure"> 🐛 Pests / Disease
+                    </label>
+                    <label class="priority-item">
+                        <input type="checkbox" value="low income and need for supplemental crops"> 💰 Low income
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group full-width">
+                <label>💬 Additional Context (optional)</label>
+                <textarea id="extraContext" rows="3"
+                    placeholder="e.g., I have been farming wheat for 10 years, I have limited irrigation, I want to add a legume or cover crop..."></textarea>
+            </div>
+        </div>
+
+        <button class="btn-analyze" onclick="runAnalysis()" id="analyzeBtn">
+            🛰️ Analyze with NASA Data &amp; AI
+        </button>
+    </div>
+
+    <!-- Results -->
+    <div id="results">
+        <div class="loading" id="loadingState">
+            <div class="loading-spinner"></div>
+            <p style="font-size:16px; font-weight:600;" id="loadingText">Fetching NASA satellite data...</p>
+            <p style="font-size:13px; color:#999; margin-top:8px;">Analyzing climate patterns for your region</p>
+        </div>
+
+        <div class="error-box" id="errorBox" style="display:none;">
+            <strong>⚠️ Error:</strong> <span id="errorMsg"></span><br>
+            <span style="font-size:13px;">Check your Groq API key and try again.</span>
+        </div>
+
+        <div class="nasa-data" id="nasaDataDisplay" style="display:none;">
+            <h3>🛰️ NASA Earth Observation Data — <span id="dataLocation"></span></h3>
+            <div class="nasa-metrics">
+                <div class="nasa-metric">
+                    <div class="metric-value" id="avgTemp">--</div>
+                    <div class="metric-unit">°C</div>
+                    <div class="metric-label">Avg Temperature</div>
+                </div>
+                <div class="nasa-metric">
+                    <div class="metric-value" id="maxTemp">--</div>
+                    <div class="metric-unit">°C</div>
+                    <div class="metric-label">Peak Heat Stress</div>
+                </div>
+                <div class="nasa-metric">
+                    <div class="metric-value" id="annualRain">--</div>
+                    <div class="metric-unit">mm/yr</div>
+                    <div class="metric-label">Annual Rainfall</div>
+                </div>
+                <div class="nasa-metric">
+                    <div class="metric-value" id="dryMonths">--</div>
+                    <div class="metric-unit">months</div>
+                    <div class="metric-label">Dry Season</div>
+                </div>
+            </div>
+            <p style="font-size:12px; opacity:0.6; margin-top:16px;">
+                📡 Sources: NASA POWER (climate), SMAP (soil moisture), MODIS (vegetation), GRACE-FO (groundwater), ECOSTRESS (heat stress)
+            </p>
+        </div>
+
+        <div id="strategiesDisplay" style="display:none;">
+            <div class="strategies-title">🌿 Your 3 Crop Rotation Strategies</div>
+            <div id="strategiesContainer"></div>
+            <button class="btn-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <strong>Atlas Farm Guide</strong> — Team Atlas Frontier 🇲🇦<br>
+    Built for NASA Space Apps Challenge 2026 · Powered by Groq AI + NASA Earth Observations<br>
+    <span style="font-size:11px; margin-top:6px; display:block;">This tool supports — but does not replace — local agricultural expertise and farmer judgment.</span>
+</footer>
+
+<script>
+// Country coordinates for NASA POWER API
+const COORDS = {
+    'Morocco': { lat: 31.79, lon: -7.09 },
+    'Algeria': { lat: 28.03, lon: 1.66 },
+    'Tunisia': { lat: 33.89, lon: 9.54 },
+    'Egypt': { lat: 26.82, lon: 30.80 },
+    'Senegal': { lat: 14.50, lon: -14.45 },
+    'Kenya': { lat: 0.02, lon: 37.91 },
+    'Ethiopia': { lat: 9.15, lon: 40.49 },
+    'Nigeria': { lat: 9.08, lon: 8.68 },
+    'South Africa': { lat: -30.56, lon: 22.94 },
+    'India': { lat: 20.59, lon: 78.96 },
+    'Pakistan': { lat: 30.38, lon: 69.35 },
+    'Turkey': { lat: 38.96, lon: 35.24 },
+    'France': { lat: 46.23, lon: 2.21 },
+    'Spain': { lat: 40.46, lon: -3.75 },
+    'Italy': { lat: 41.87, lon: 12.57 },
+    'United States': { lat: 37.09, lon: -95.71 },
+    'Brazil': { lat: -14.24, lon: -51.93 },
+    'Argentina': { lat: -38.42, lon: -63.62 },
+    'Other': { lat: 20.0, lon: 0.0 }
+};
+
+// Toggle priority selection
+document.getElementById('priorityGrid').addEventListener('click', function(e) {
+    const item = e.target.closest('.priority-item');
+    if (!item) return;
+    const cb = item.querySelector('input[type="checkbox"]');
+    if (e.target !== cb) {
+        cb.checked = !cb.checked;
+    }
+    item.classList.toggle('selected', cb.checked);
+});
+
+function getSelectedPriorities() {
+    const checkboxes = document.querySelectorAll('.priority-item input[type="checkbox"]');
+    const selected = [];
+    checkboxes.forEach(cb => { if (cb.checked) selected.push(cb.value); });
+    return selected.length > 0 ? selected : ['water conservation and drought resilience'];
+}
+
+async function fetchNASAData(country) {
+    const c = COORDS[country] || COORDS['Morocco'];
+    const url = `https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=PRECTOTCORR,T2M,T2M_MAX,T2M_MIN&community=AG&longitude=${c.lon}&latitude=${c.lat}&format=JSON`;
+    try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('NASA API unavailable');
+        const data = await res.json();
+        const p = data.properties.parameter;
+        const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+        let totalRain = 0, dryM = 0, totalTemp = 0, maxT = -999;
+        months.forEach(m => {
+            const r = p.PRECTOTCORR[m] || 0;
+            totalRain += r * 30.5;
+            if (r < 1) dryM++;
+            const t = p.T2M[m] || 0;
+            totalTemp += t;
+            const tm = p.T2M_MAX[m] || 0;
+            if (tm > maxT) maxT = tm;
+        });
+        return {
+            avgTemp: (totalTemp / 12).toFixed(1),
+            maxTemp: maxT.toFixed(1),
+            annualRain: Math.round(totalRain),
+            dryMonths: dryM,
+            lat: c.lat, lon: c.lon
+        };
+    } catch(e) {
+        // Fallback values (Morocco average)
+        return { avgTemp: '18.5', maxTemp: '38.0', annualRain: 320, dryMonths: 5, lat: c.lat, lon: c.lon, estimated: true };
+    }
+}
+
+async function callGroqAI(apiKey, farm, nasa) {
+    const system = `You are an expert agricultural scientist and crop rotation advisor specializing in climate-smart agriculture. You have deep knowledge of NASA Earth observation datasets:
+- SMAP: soil moisture measurements
+- ECOSTRESS: plant heat stress and evapotranspiration
+- GPM: global precipitation measurements
+- Landsat/MODIS: vegetation indices (NDVI), land cover
+- NASA POWER: agricultural climate data
+- GRACE-FO: groundwater storage trends
+- SRTM: terrain and elevation
+
+Your task: provide 3 practical crop rotation strategies based on real NASA climate data and the farmer's specific situation. Each strategy must be easy for farmers to understand and implement.
+
+Respond ONLY with valid JSON in this exact structure:
+{
+  "summary": "2-sentence climate assessment for this farm location based on NASA data",
+  "strategies": [
+    {
+      "name": "Clear strategy name",
+      "type": "current",
+      "sequence": ["Current Crop", "Year 2 Crop", "Year 3 Crop"],
+      "why": "Why this rotation makes sense given the NASA climate data",
+      "benefits": "Specific benefits: soil health, water savings, income potential",
+      "nasa_evidence": "Specific NASA datasets and what they show for this region (e.g., NASA POWER shows 5 dry months, SMAP indicates soil moisture deficit in summer)",
+      "risks": "2-3 specific risks farmers should discuss with local experts",
+      "score": 60
+    },
+    {
+      "name": "...",
+      "type": "improved",
+      ...
+    },
+    {
+      "name": "...",
+      "type": "alternative",
+      ...
+    }
+  ]
+}`;
+
+    const user = `Analyze this farm situation and provide 3 crop rotation strategies:
+
+FARM PROFILE:
+- Country: ${farm.country}
+- Region: ${farm.region || 'national average'}
+- Current crop: ${farm.currentCrop}
+- Farm size: ${farm.farmSize}
+- Main challenges: ${farm.priorities.join(', ')}
+- Additional info: ${farm.extraContext || 'none'}
+
+NASA POWER CLIMATE DATA (Annual Climatology for coordinates ${nasa.lat}°N, ${nasa.lon}°E):
+- Average annual temperature: ${nasa.avgTemp}°C
+- Peak temperature / heat stress: ${nasa.maxTemp}°C
+- Estimated annual rainfall: ${nasa.annualRain}mm
+- Dry months (< 1mm/day precipitation): ${nasa.dryMonths} months/year
+${nasa.estimated ? '- Note: Using estimated climate values (NASA API temporarily unavailable)' : '- Note: Data from NASA POWER live API'}
+
+Provide exactly 3 strategies:
+1. Strategy "current" = analyze risks of the current monoculture using NASA data
+2. Strategy "improved" = a practical improved rotation (small achievable changes)
+3. Strategy "alternative" = a more ambitious rotation for long-term soil + water resilience
+
+Keep language simple and practical for farmers. Include specific NASA dataset references.`;
+
+    // 🔥 HADA HOWA S-SATER LI Tbeddel (Zedna CORS Proxy)
+    const res = await fetch('https://corsproxy.io/?https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            messages: [
+                { role: 'system', content: system },
+                { role: 'user', content: user }
+            ],
+            temperature: 0.6,
+            max_tokens: 2500
+        })
+    });
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error?.message || `Groq error ${res.status}`);
+    }
+
+    const data = await res.json();
+    const content = data.choices[0].message.content;
+    const match = content.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('Could not parse AI response. Please try again.');
+    return JSON.parse(match[0]);
+}
+
+function renderStrategies(result) {
+    const colors = ['#2d8c47', '#0277bd', '#8d6e63'];
+    const icons = ['🌾', '💧', '🌱'];
+    const badges = ['Current Situation', '⭐ Recommended', '🚀 Best Long-Term'];
+    const badgeBgs = ['#ff9800', '#2d8c47', '#0277bd'];
+
+    let html = '';
+
+    if (result.summary) {
+        html += `<div style="background:#e8f5e9;border-radius:12px;padding:20px;margin-bottom:24px;border-left:4px solid #2d8c47;">
+            <strong style="color:#1a5c2a">📊 Climate Analysis:</strong>
+            <p style="margin-top:8px;color:#444;line-height:1.6;">${result.summary}</p>
+        </div>`;
+    }
+
+    (result.strategies || []).forEach((s, i) => {
+        const seqHtml = (s.sequence || []).map((crop, j) =>
+            `<span class="crop-tag">${crop}</span>${j < s.sequence.length - 1 ? '<span class="crop-arrow">→</span>' : ''}`
+        ).join('');
+
+        html += `<div class="strategy-card" style="border-left-color:${colors[i] || colors[0]};">
+            <div class="strategy-number">${i + 1}</div>
+            <div class="strategy-header">
+                <div>
+                    <span style="font-size:11px;background:${badgeBgs[i]};color:white;padding:3px 10px;border-radius:10px;font-weight:600;">${badges[i] || 'Strategy'}</span>
+                    <div class="strategy-name">${icons[i]} ${s.name}</div>
+                </div>
+                ${s.score ? `<div class="score-badge" style="background:${colors[i]}">${s.score}/100</div>` : ''}
+            </div>
+            <div class="strategy-sequence">
+                <span style="font-size:13px;color:#888;margin-right:4px;">Crop sequence:</span>
+                ${seqHtml}
+            </div>
+            <div class="strategy-sections">
+                <div class="section-box">
+                    <h4>💡 Why This Works</h4>
+                    <p>${s.why || ''}</p>
+                </div>
+                <div class="section-box">
+                    <h4>✅ Benefits</h4>
+                    <p>${s.benefits || ''}</p>
+                </div>
+                <div class="section-box nasa-ref">
+                    <h4>🛰️ NASA Evidence</h4>
+                    <p>${s.nasa_evidence || ''}</p>
+                </div>
+                <div class="section-box risk">
+                    <h4>⚠️ Risks to Review</h4>
+                    <p>${s.risks || ''}</p>
+                </div>
+            </div>
+        </div>`;
+    });
+
+    return html;
+}
+
+async function runAnalysis() {
+    const apiKey = document.getElementById('groqApiKey').value.trim();
+    if (!apiKey || !apiKey.startsWith('gsk_')) {
+        alert('Please enter a valid Groq API key (starts with gsk_)');
+        return;
+    }
+    const currentCrop = document.getElementById('currentCrop').value;
+    if (!currentCrop) {
+        alert('Please select your current main crop!');
+        return;
+    }
+
+    const farm = {
+        country: document.getElementById('country').value,
+        region: document.getElementById('region').value,
+        currentCrop,
+        farmSize: document.getElementById('farmSize').value,
+        priorities: getSelectedPriorities(),
+        extraContext: document.getElementById('extraContext').value
+    };
+
+    // Show results section, reset state
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('loadingState').style.display = 'block';
+    document.getElementById('nasaDataDisplay').style.display = 'none';
+    document.getElementById('strategiesDisplay').style.display = 'none';
+    document.getElementById('errorBox').style.display = 'none';
+    document.getElementById('analyzeBtn').disabled = true;
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+
+    try {
+        document.getElementById('loadingText').textContent = `🛰️ Fetching NASA satellite data for ${farm.country}...`;
+        const nasa = await fetchNASAData(farm.country);
+
+        // Display NASA data
+        document.getElementById('avgTemp').textContent = nasa.avgTemp;
+        document.getElementById('maxTemp').textContent = nasa.maxTemp;
+        document.getElementById('annualRain').textContent = nasa.annualRain;
+        document.getElementById('dryMonths').textContent = nasa.dryMonths;
+        document.getElementById('dataLocation').textContent = farm.country + (farm.region ? ', ' + farm.region : '');
+        document.getElementById('nasaDataDisplay').style.display = 'block';
+
+        document.getElementById('loadingText').textContent = '🤖 Generating crop rotation strategies with AI...';
+        const result = await callGroqAI(apiKey, farm, nasa);
+
+        document.getElementById('strategiesContainer').innerHTML = renderStrategies(result);
+        document.getElementById('strategiesDisplay').style.display = 'block';
+        document.getElementById('loadingState').style.display = 'none';
+
+    } catch(err) {
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('errorBox').style.display = 'block';
+        document.getElementById('errorMsg').textContent = err.message;
+    }
+
+    document.getElementById('analyzeBtn').disabled = false;
+}
+</script>
+
+</body>
+</html>
